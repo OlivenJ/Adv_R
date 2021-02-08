@@ -1,0 +1,101 @@
+---
+title: 'Section 2: Names and Values'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(lobstr)
+
+```
+
+
+## Binding basics
+
+```{r}
+x <- c(1,2,3)
+y <- x
+
+obj_addr(x)
+obj_addr(y)
+```
+
+The above demonstrates how we assign name/label to a value, and how the value is stroed in certain but random position.
+
+When we assign the name, or we assign the value to the name (actually is more like we label a value with name), we know that the name should follow some synatic rules like no number, no reserved key word etc.
+
+But we can use quotes, the backticks, to override those synatx rules:
+```{r}
+`if` <- 1
+`if`
+
+```
+Here in the book Hadley suggests not use double quote " " to create the name, since we need different method to retrive the values.
+My guess here is, if we use " ", then the name is not a variable but a string, and R will treat the string and the variable name differently, and very possible confusingly.
+Therefore, using the backticket provides a consistent way to create variable names.
+
+```{r}
+x <- c(1, 2, 3)
+cat(tracemem(x), "\n")
+
+y <- x
+y[[3]] <- 4
+y[[3]] <- 5L 
+x
+
+untracemem(x)
+
+```
+
+```{r}
+f <- function(a) {
+  a
+}
+
+x <- c(1, 2, 3)
+cat(tracemem(x), "\n")
+
+
+z <- f(x)
+
+untracemem(x)
+```
+
+Above code clearly shows how the label and the value, and the assignment works under the hood, actually list also works in the similar manner.
+
+When we create a list, we need to specify how many elements are inside the list, then we assign the list a name.
+The name is linked to the list, and for each small cell inside the list, themselves are just like the name, which will link to the true value, or object we intend to store in the list.
+
+This feautre allowing us to modify the value of the element inside the list easily.
+
+When we have to list, both of them stores the same number, the ture thing will be:
+The two list themselves are stored in different chunks of memeories, and the value are loacted seperately. 
+Then the cell will link to the value, this means that even lists are different, the cells are different, the value they stored are the same, both the face value and the actual address.
+
+So, once we understand this, we understand the logic of data frame, and tibble, and all kind of other tables format developed with tibble.
+Data frame is just a list of vectors, therefore it share the same property as the plain simple list.
+
+## Memory
+```{r}
+x <- runif(1e6)
+obj_size(x)
+
+y <- list(x,x,x)
+obj_size(y)
+
+obj_size(list(NULL,NULL,NULL))
+```
+
+`function::obj_size()` shows the size of the object.
+In the above subsection, we discuss the fact that the list is just a bunch of cells who direct to different values, so here we notice that the list object is not necessary very large.
+
+So you see, the size of the y object is just the size of the x object plus the size of a empty list with three cells.
+This because all three cells direct to the one same thing: the x.
+
+```{r}
+obj_size(x) + obj_size(y)
+obj_size(x, y)
+```
+Notice the two expression above have different value:
+THe first line is a simple plus operation, it combine two size together.
+But the second line, because x and y have a lot in common, the size is just the size of the y object.
