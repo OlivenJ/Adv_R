@@ -1,0 +1,170 @@
+---
+title: "Section 3"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(lobstr)
+```
+
+# Vectors
+
+There are some commomn sense of the vector will not be verbosed here, I only record thing I don't know, or have a weak memory.
+
+## Atomic Vectors:
+
+Atomic vectors only contain homogenious elements (character, double, integer, logic), and you can not put differnt data types into the vector, other wise R will just coerced them.
+```{r}
+c("1", 1) #you see both the character and the integer are coereced into the character.
+         # R will coerece elements base on the sequence of character, double, integer, and logic
+```
+
+Of course you can use function like `as.double()` to coerece the vector into the data type you want.
+
+## Attributes
+
+```{r}
+a <- 1:3
+attr(a, "x") <- "abcdef"
+attr(a, "x")
+
+attr(a, "y") <- 4:6
+str(attributes(a))
+```
+
+By above codes, we have: the vector a which contains three values.
+And the vector has two attributes x and y, these two attributes contain different information.
+
+For a vector, there are two important attributes you might interest with: the name and the dimensions (dim).
+
+There are three ways that you can assign name to a vector:
+```{r}
+x <- c(a = 1, b = 2, c = 3)
+x
+
+x <- 1:3
+x
+names(x ) <- c("a", "b", "c")
+x
+
+x <- setNames(1:3, c("a", "b", "c"))
+```
+So, we can here imagine a key-value pair exist and it was stored inside the vector x.
+The pair direct the name a to value 1, b to value 2, and c to value 3.
+
+
+By modifying the dim attributes, we can change our vector into 2-dimensional matrix, or n-dimensional array:
+You can either call `matrix()` or `array()` directly, more modify the dim manually.
+```{r}
+x <- matrix(1:6, nrow= 2, ncol = 3)
+
+y <- array(1:12, c(2,3,2))
+
+z<-1:6
+dim(z) <- c(3,2)
+```
+
+
+## S3 atomic vectors
+
+By assigne a object the `class` attributes, we turn the object into **S3 object**.
+We will discuss briefly four most common and important **S3 object** here, and more detailed discussion is in the future sections.
+
+ ### Factors
+ 
+ Factors can be regard as a vecotr, with two attributes: the `levels`, and the more interesting `class`.
+ The `class` attribute makes factor a S3 object
+ 
+```{r}
+ x <- factor(c("a", "b", "b", "a"))
+attributes(x)
+```
+ 
+ ### Date and Date-times
+ On top of a double vector, by assigning the `class` attributes, we can obtain the Date Vector
+```{r}
+today <- Sys.Date()
+typeof(today) #you see the type of it is double
+attributes(today)
+```
+ As you may or may not know, the R's date system is based on the operating plus and minus on a base date: 1970-01-01.
+ Therefore, after knowing the date vector is build on top of double, we are expect to see:
+```{r}
+date <- as.Date("1970-02-01")
+unclass(date) 
+# After unclass, we turn the date vector back into double, and it is precisely 31, the number of days 1970-02-01 after 1970-01-01
+```
+ 
+ For the same reasons above, the date-time vecotr is also build on the basis of double:
+```{r}
+now_ct <- as.POSIXct("2020-08-01 22:00", tz = "UTC")
+typeof(now_ct)
+attributes(now_ct)
+```
+### Duratoin
+
+Seems like all time-related object are build on top of the double.
+Duration, since it measure the difference between two time/date, also build on top of double.
+And it contain the `class` called difftime:
+```{r}
+one_week_1 <- as.difftime(1, units = "weeks")
+one_week_1
+typeof(one_week_1)
+
+attributes(one_week_1)
+
+
+one_week_2 <- as.difftime(7, units = "days")
+one_week_2
+
+typeof(one_week_2)
+
+attributes(one_week_2)
+```
+
+ ## List
+ We disucussed before, automic vecotrs are homogenous, which means only data and elements with same type can be stored in one vector, if you want different data with differnt type live together, you should use list.
+ For every element inside the list, themselves stand for a single element.
+```{r}
+l1 <- list(
+  1:3, 
+  "a", 
+  c(TRUE, FALSE, TRUE), 
+  c(2.3, 5.9)
+)
+
+typeof(l1)
+
+str(l1) # you see the attributes inside the list is all different, they are determiend by the elements inside the list.
+```
+ 
+ Rember the memory we discuss before ?
+ Cells inside a list are just some arrow direct to the memory where those values are stored, and list itself does not copy and store those values.
+ Therefore, list as an object might have a surprisingly small size.
+ And since list can contain all types of information, it natually has room for other list.
+ Hence we call list a recursive vecotr, you can dig deeper and deeper inside a list.
+ 
+ Sometimes, you may want the list become homogenous, just like tha automic vector does.
+ To achive this, you can call `unlist()`
+```{r}
+a <- list(1, 'a', FALSE, "what", 1.34)
+typeof(a)
+a <- unlist(a)
+typeof(a)
+```
+ But what types of the vecotr the `unlist()` lead the list to is unclear, Hadely says the rule is not well documented...
+ 
+ 
+ ## Data Frames and our favourite Tibbles
+ 
+ There are two extra very very crucial `S3 object`, data frame and tibble.
+ We view data frame as a bunch of list together, with attributes `name`, `row.names` and a class `data.frame`
+```{r}
+df1 <- data.frame(x = 1:3, y = letters[1:3])
+typeof(df1)
+
+attributes(df1)
+
+```
+ 
+ 

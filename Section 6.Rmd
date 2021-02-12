@@ -1,0 +1,246 @@
+---
+title: "Section 6"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lobstr)
+```
+# Function
+
+The function in R contains three types of important information:
+
+1. formals: the variables contain inside the function
+
+2. body: the logic and sequence executive inside the function
+
+3. environment: the only invisible (implicit) part of the function, it determines how the values and the name of the function are correlated with each other.
+```{r}
+f02 <- function(x, y){
+  x + y
+  # some comment to explain the function
+}
+
+formals(f02) # the variable inside the function
+body(f02) # the content wrap inside the function
+environment(f02) #... the environment
+```
+In lots of the time, we will call the function from the base R, and there are some functions are really unique.
+The primitive functions:
+```{r}
+typeof(sum) # type builtin
+typeof(`[`) # type special
+typeof(f02) # type closure
+typeof(select)# type closure
+```
+From above chunck, we see the `sum()` has type builtin, and the subset function `[]` has type special.
+Both of them are primitive functions, and they are implemented directly from the C code.
+Those primitive function has NULL for all three informations we mentioned before
+```{r}
+formals(sum)
+body(sum)
+environment(sum)
+```
+We usually assign funciton a name, so that we can recall the function easily and eliminate the redundant work.
+But it is not compulsory to give the function a name, we can write a type of function called **anonymous function**, which does not contain a special name.
+
+```{r}
+lapply(mtcars, function(x) length(unique(x)))
+```
+You see, the anonymous function does not even need the curly bracket.
+Another interesting trick is to put the function into a list, and we can call it like we retrive the values from the list:
+```{r}
+funs <- list(
+  half = function(x) x/2,
+  double  =function(x) x*2
+)
+
+funs$double(10)
+```
+Normally, we call the function by type the name of the function, and assign the desire variables suitable values, but if we have some pre-exist value list, we can call the function in another way.
+```{r}
+args <- list(1:10, na.rm = TRUE)
+do.call(mean, args)
+```
+
+## Lexical scoping
+Usually, we pre-determine what variable will be included inside the function.
+Even for the same variable which has value outside the function, the value inside the function will replace/mask it.
+
+What if, we do not have the variable value inside the function ?
+Then R will go one level up, try to find the value outside current function, either go to upper function, or go directly outside the whole functions.
+```{r}
+x <- 1
+g04 <- function(){
+  y <- 2
+  i <- function(){
+    z <- 3
+    c(x,y,z)
+  }
+  i()
+}
+g04()
+```
+As you can see: the z is defined inside the `i()`, and `i()` require three variable.
+Neither x nor y are defined inside the `i()`, so R will look outside the function, first find y in the `g04()`, then the x in the global environment.
+
+## Lazy evaluation
+The function in R is designed to be lazy (or in other words: effiencent)
+```{r}
+h01 <- function(x){
+  10
+}
+
+h01("get me out of here")
+```
+You see, even we put something totally makes no sense inside the function, we can still get correct output.
+This is because the function does not use the variable we write.
+This will come to handy later, since this feature allows us to save the valuable computational power and time for unnecessary things.
+
+A very common using of the lazy evaluation is setting default value,
+but Hadely does not suggesting use the default value, since you have to remember and know the exact order of the value to avoid confusion and abnormal results.
+
+## `...` dot-dot -dot
+
+The triple dot argument `...`, is very common is you use R.
+They represent those additional arguments that can be passed into one function.
+
+`...` it self can represent the arguments used in one function, like the example below
+```{r}
+i01 <- function(y,z){
+  list(y  = y, z = z)
+}
+
+i02 <- function(x, ...){
+  i01(...)
+}
+
+str(i02(x = 1, y = 2, z = 3))
+```
+Here, we have function `i01` and it contains three arguments.
+Then we call the  `i01` in another function `i02`, and `i02` itself only require one argument.
+There, we use `...` in the `i02` to represent those arguments suppose to be inside teh `i01`.
+And you can see, `...` can pass those additional arguments on to another funciton.
+
+If you want, you can also use `..N` to indicates the n th values in the `...` arguments.
+```{r}
+i03 <- function(...){
+  list(first = ..1, third = ..2)
+}
+
+str(i03(1,2,3))
+```
+A more useful usage of `...` is `list(...)`, which stores the argument into a list.
+```{r}
+i04 <- function(...){
+  list(...)
+}
+
+str(i04(a = 1, b = 2, c = 3))
+```
+
+## Exisitng function
+If you study programming (you probably are) before, you will know that the function need to be called to return something.
+This also apply to R, the function in R will return values in two scenario:
+1. It just return the last called values or object
+
+2. You explicitly use `return()` to return some results.
+
+This is not particularly interesting, what's more intrigue is the fact that R can return invisible values:
+```{r}
+j04 <- function() invisible(1)
+j04()
+```
+
+You see, we use the `invisible()` to wrap up the returned value, and it shows nothing.
+If you want to make sure that something is indeed there, you can use:
+```{r}
+print(j04())
+(j04())
+```
+either ask the R to print it, or use () to wrap it.
+You might think function retrun invisible value is wired, but it is not, lots of function should reutrn invisible values.
+One famous example is the ` <-` assign function, which does not provide any visible results.
+
+One good habit of when writing function is add error.
+The function will return some information to indicate where going wrong and this helps user better spot the mistake.
+To print the error message, use `stop()` function.
+```{r}
+j05 <- function(){
+  stop("I am an error")
+  return(10)
+}
+j05()
+```
+
+## Function Form
+For lots of people who knows other programming language and first time plays with R, they are usually amazed by who the functions play it role in R.
+We have a lots of function in R, which from the CS view, quite strange.
+In general, we have four most common function form in R.
+
+### Prefix
+
+This is the most common, and most "normal" function form: the function with name in front and argument inside parentheses.
+And almost for all functions, they can be rewrite into the prefix form
+```{r}
+1+2 #we some time forget that + as operator is also a function
+`+`(1,2) #using `` to call the function, we turn the plus operator into prefix form
+
+for(i in seq_along(1:10)) print(i) # for, and conditional operators are also function, and they can be write in the prefix form as well !
+`for`(i, seq_along(1:10), print(1))
+```
+After understand this, we can think it inversely: operator can be use as function.
+Remember this will some times bring extra convenience.
+```{r}
+add <- function(x, y){x + y}
+lapply(list(3:4, 1:5),add,3) # this is how we think about the functional programing using apply()
+
+lapply(list(3:4, 1:5),`+`,3)
+#+ is also function, it does the same thing here !
+```
+So, for prefix form, it's important to pass the correct arguments into the function, and there are three ways for the value you provides to find their fitted poisition:
+1: by giving complete argument name
+2: relying on the partial matching
+3: by sequence and position
+
+### infix function
+For the function like +, we call them the infix function.
+Notice that we need `` everytime if we want to call a infix function in prefix way.
+There are lots of infix function, basically all the operators, the subset operator `:`, `::`, `$`, and `<-`.
+You can write your own infix function, the famous pipe operator ` %>% ` is an example.
+
+So, if you want to write an infix function, you need to start and end the function with `%`.
+```{r}
+`%+%` <- function(a,b) paste0(a, b)
+"new " %+% "infix operator"
+```
+notice when you naming the function, you need to escape some character when write it, but not necessary when call it.
+```{r}
+`%/\\%` <- function(a, b)paste(a,b)
+"a"%/\% "b"
+```
+
+### replacement function
+For me, this is the most strange function in R, the replacement function act like it is modifying the arugment in place, and the family of replacement function has the form `___ <-`
+You need have at least two arguments inside the replacement function: `x` and `value`, and the funcion must return the modified object.
+
+```{r}
+`second<-` <- function(x, value){ #notice the form of the function
+  x[2] <- value
+  x # and it return the modified object
+}
+x <- 1:10
+second(x) <- 5L
+x
+```
+If you want to add the third or more arguments into the replacement funciton, you need to make sure they locates between  `x` and `value`
+```{r}
+`modify<-` <- function(x, position,value){
+  x[position] <- value
+  x
+}
+modify(x,1) <- 10
+x
+```
+
