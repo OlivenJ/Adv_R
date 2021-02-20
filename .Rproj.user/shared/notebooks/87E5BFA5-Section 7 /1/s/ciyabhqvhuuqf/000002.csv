@@ -1,0 +1,12 @@
+"0","env_print(e1)
+"
+"1","[1m<environment: 0x7fa7bbbb1d88>[22m
+parent: <environment: global>
+"
+"1","bindings:
+"
+"1"," [1m[90m* [39m[22ma: <lgl>
+ [1m[90m* [39m[22mb: <chr>
+ [1m[90m* [39m[22mc: <int>
+ [1m[90m* [39m[22md: <env>
+"

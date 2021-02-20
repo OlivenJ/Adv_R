@@ -1,0 +1,61 @@
+---
+title: "Section 7"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(rlang)
+library(tidyverse)
+```
+
+# Environment
+```{r}
+e1 <- env(
+  a = FALSE,
+  b = "a",
+  c = 2:3,
+   d = 1:3
+)
+e1
+```
+Environment object in R is like a named list, with key-value pair all over the sapce.
+But be aware, the name inside the list must be unique, and all those names are not ordered: they are just labels attach to some values (or you may prefer vice versa).
+
+```{r}
+new.env() # a quick way to create a new environment
+```
+```{r}
+e1$d <- e1
+env_print(e1)
+```
+You notice that after the modification, the d inside e1 becomes class: env a environment, just like what we did for the `e1$d <- e1`.
+Therefore, you know that the modification of a environment does not creates a copy, but modified it in place, and now the d of e1 point back to e1 itself.
+```{r}
+env_names(e1) # this return the name of the names.
+names(e1) # so as this one
+
+global_env()#this method calls the global environment
+current_env() #this method calls the current working environment
+identical(global_env(), current_env()) # this helps us compare the environemnt
+```
+
+Another feature of the environment is parent: every environment has a parent environment, except the empty environment.
+When we are trying to find a name inside a environment and we failed, we will start to looking from the parent of the environment, and so on and so forth.
+To assign a parent, just put a unnamed arugment when creating the environment.
+If you forget to assign one, R will allocate the current environment as the parent.
+```{r}
+e2a <- env(d = 4, e  = 5)
+e2b <- env(e2a, a = 1, b = 2, c = 3)
+
+env_parent(e2a) # e2a has the environmnet, global 
+env_parent(e2b) # we assign e2a as e2b's parent
+
+e2c <- env(empty_env(), d = 4, e = 5)
+e2d <- env(e2c, a= 1, b = 2, c =3)
+
+env_parents(e2b)
+env_parents(e2d)
+env_parents(e2b, last = empty_env())
+```
+

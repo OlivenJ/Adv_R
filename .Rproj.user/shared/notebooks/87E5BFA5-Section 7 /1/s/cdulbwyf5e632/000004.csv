@@ -1,0 +1,24 @@
+"0","env_parents(e2b, last = empty_env())
+"
+"1"," [[1]]   <env: 0x7fa7fbbb60b0>
+ [[2]] $ <env: global>
+ [[3]] $ <env: package:forcats>
+ [[4]] $ <env: package:stringr>
+ [[5]] $ <env: package:dplyr>
+ [[6]] $ <env: package:purrr>
+ [[7]] $ <env: package:readr>
+ [[8]] $ <env: package:tidyr>
+ [[9]] $ <env: package:tibble>
+[[10]] $ <env: package:ggplot2>
+[[11]] $ <env: package:tidyverse>
+[[12]] $ <env: package:rlang>
+[[13]] $ <env: tools:rstudio>
+[[14]] $ <env: package:stats>
+[[15]] $ <env: package:graphics>
+[[16]] $ <env: package:grDevices>
+[[17]] $ <env: package:utils>
+[[18]] $ <env: package:datasets>
+[[19]] $ <env: package:methods>
+[[20]] $ <env: Autoloads>
+... and 2 more environments
+"
